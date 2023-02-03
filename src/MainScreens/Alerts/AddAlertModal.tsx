@@ -24,8 +24,9 @@ import GlobalContext from '../../Context';
 interface propsType {
   show: boolean;
   setShow: Dispatch<boolean>;
+  updateParent: Dispatch<number>;
 }
-function AddAlertModal({show, setShow}: propsType) {
+function AddAlertModal({show, setShow, updateParent}: propsType) {
   const {userData, setIsLoading} = useContext(GlobalContext);
   //radio defaults
   const days: string[] = [];
@@ -237,11 +238,10 @@ function AddAlertModal({show, setShow}: propsType) {
       .post(add_alert, d)
       .then(async res => {
         console.log(res);
-        if (res.data.status) setShow(false);
-        // updateParent(Math.random());
-        // if (res.data.success) {
-        //   updateParent(Math.random());
-        // } else setIsLoading(false);
+        if (res.data.status)  {
+          updateParent(Math.random());
+          setShow(false);
+        } else setIsLoading(false);
       })
       .finally(()=>setIsLoading(false))
       .catch(err => console.log(err));

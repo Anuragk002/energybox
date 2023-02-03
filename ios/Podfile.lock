@@ -392,6 +392,8 @@ PODS:
     - React-Core
   - RNDateTimePicker (6.7.1):
     - React-Core
+  - RNFS (2.20.0):
+    - React-Core
   - RNScreens (3.18.2):
     - React-Core
     - React-RCTImage
@@ -471,6 +473,7 @@ DEPENDENCIES:
   - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
   - "RNCCheckbox (from `../node_modules/@react-native-community/checkbox`)"
   - "RNDateTimePicker (from `../node_modules/@react-native-community/datetimepicker`)"
+  - RNFS (from `../node_modules/react-native-fs`)
   - RNScreens (from `../node_modules/react-native-screens`)
   - RNSVG (from `../node_modules/react-native-svg`)
   - RNVectorIcons (from `../node_modules/react-native-vector-icons`)
@@ -577,6 +580,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-community/checkbox"
   RNDateTimePicker:
     :path: "../node_modules/@react-native-community/datetimepicker"
+  RNFS:
+    :path: "../node_modules/react-native-fs"
   RNScreens:
     :path: "../node_modules/react-native-screens"
   RNSVG:
@@ -641,6 +646,7 @@ SPEC CHECKSUMS:
   RNCAsyncStorage: 889cea2408e52fe71da475306dcef43951577da0
   RNCCheckbox: 7a4a0769e7ffbb60b4a6e29bd23866d252e8b0b2
   RNDateTimePicker: 1bfe1bd77201b1d69ed0fe0c01b9f40c8bffb264
+  RNFS: 4ac0f0ea233904cb798630b3c077808c06931688
   RNScreens: 34cc502acf1b916c582c60003dc3089fa01dc66d
   RNSVG: d787d64ca06b9158e763ad2638a8c4edce00782a
   RNVectorIcons: fcc2f6cb32f5735b586e66d14103a74ce6ad61f8

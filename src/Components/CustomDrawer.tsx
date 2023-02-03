@@ -1,3 +1,4 @@
+import { useNavigation } from '@react-navigation/native';
 import React, {Dispatch, useContext} from 'react';
 import {
   Image,
@@ -12,12 +13,23 @@ import Modal from 'react-native-modal/dist/modal';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import GlobalContext from '../Context';
 import colors from '../utils/colors';
+import { LocalStorage } from '../utils/helpers';
 interface propsType {
   show: boolean;
   setShow: Dispatch<boolean>;
 }
+interface NavProps {
+  navigate: any;
+  replace: any;
+}
 function CustomDrawer({show, setShow}: propsType) {
-  const {userData} = useContext(GlobalContext);
+  const {userData,setUserData} = useContext(GlobalContext);
+  const navigation = useNavigation<NavProps>();
+  const handleLogout=async()=>{
+    await LocalStorage.delete(LocalStorage.Key.UserData);
+    setUserData(null)
+    navigation.replace('Login');
+  }
   return (
     <Modal
       useNativeDriver={true} 
@@ -46,16 +58,18 @@ function CustomDrawer({show, setShow}: propsType) {
               <Text style={styles.username}>{userData?.name}</Text>
             </View>
             <TouchableOpacity
+              onPress={handleLogout}
               style={{
                 padding: 20,
                 backgroundColor: "#ebeff5",
                 marginVertical: 20,
-                flexDirection:'row'
+                flexDirection:'row',
+                alignItems:'center',
               }}>
               <Text
                 style={{
                   color: colors.accent_primary,
-                  fontSize: 25,
+                  fontSize: 22,
                   fontWeight: 'bold',
                 }}>
                 Log Out
@@ -63,7 +77,7 @@ function CustomDrawer({show, setShow}: propsType) {
               <Ionicons
                 style={{marginLeft:20}}
                 name={'log-out'}
-                size={30}
+                size={22}
                 color={colors.accent_primary}
               />
             </TouchableOpacity>

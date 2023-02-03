@@ -1,6 +1,6 @@
 import axios from 'axios';
 import moment from 'moment';
-import React, {Dispatch, useContext, useState} from 'react';
+import React, {Dispatch, useContext, useEffect, useState} from 'react';
 import {
   Button,
   SafeAreaView,
@@ -17,6 +17,7 @@ import DateRangePicker from '../../Components/DateRangePicker';
 import GlobalContext from '../../Context';
 import {
   allSensersByUser,
+  allSensersByUserAndLocation,
   getAllParameters,
   getGraphDate,
   get_location,
@@ -38,6 +39,10 @@ function Filter({show, setShow,graphData,setGraphData}: propsType) {
     yesterday
   );
   const [toDate, setToDate] = useState<string>(today);
+
+  const [sensorFieldDisabled, setSensorFieldDisabled] = useState(true);
+  // const [refreshInterval, setRefreshInterval] = useState(30000);
+  const [isFiltered, setIsFiltered] = useState(false);
 
   const [allLocations, setAllLocations] = useState([]);
   const [allParameters, setAllParameters] = useState([]);
@@ -66,27 +71,19 @@ function Filter({show, setShow,graphData,setGraphData}: propsType) {
   const [sensor, setSensor] = useState({});
   const [grain, setGrain] = useState({});
 
-  const getGraphData = async (filter = false) => {
-    // let d = {
-    //   user_id: userData.id,
-    //   date_range: fromDate + ' - ' + toDate,
-    //   location_id: location.id,
-    //   sensor_id: sensor.id,
-    //   parameter_id: parameter.id,
-    //   grain: grain,
-    // };
-    setIsLoading(true)
-    let d={
-      user_id: 4,
-      date_range: "01/15/2021 - 01/16/2023",
-      location_id: 19,
-      sensor_id: 10,
-      parameter_id: 3,
-      grain: "15",
-    }
+  const getGraphData = async (filter = false,inBg=false) => {
+    let d = {
+      user_id: userData.id,
+      date_range: fromDate + ' - ' + toDate,
+      location_id: location.id,
+      sensor_id: sensor.id,
+      parameter_id: parameter.id,
+      grain: grain,
+    };
+    if(!inBg){setIsLoading(true)}
     let defaultData = {
       user_id: userData.id,
-      date_range: yesterday + ' - ' + today,
+      date_range: today + ' - ' + today,
     };
     await axios
       .post(getGraphDate, filter ? d : defaultData)
@@ -114,19 +111,34 @@ function Filter({show, setShow,graphData,setGraphData}: propsType) {
       })
       .catch(err => console.log(err));
 
-    await axios
-      .post(allSensersByUser)
-      .then(async res => {
-        setAllSensors(res?.data?.sensors);
-      })
-      .catch(err => console.log(err));
   };
+  const getSensorByLocation=async()=>{
+    setIsLoading(true)
+    await axios
+      .post(allSensersByUserAndLocation,{
+        "user_id":userData.id,
+        "location_id":location.id
+    })
+      .then(async res => {
+        if(Array.isArray(res?.data?.sensors))
+        setAllSensors(res?.data?.sensors);
+        else setAllSensors([])
+        setSensorFieldDisabled(false);
+      })
+      .catch(err => console.log(err))
+      .finally(() => setIsLoading(false));
+  }
   React.useEffect(() => {
     getData();
     getGraphData();
   }, []);
 
+  React.useEffect(() => {
+    if(location.id>-1)(getSensorByLocation())
+  }, [location]);
+
   const handleApply = () => {
+    setIsFiltered(true);
     getGraphData(true);
   };
   const handleReset = () => {
@@ -134,6 +146,15 @@ function Filter({show, setShow,graphData,setGraphData}: propsType) {
     getGraphData(false);
     setShow(false)
   };
+
+  const [refreshInterval, setRefreshInterval] = useState(120000);
+  useEffect(() => {
+    if (refreshInterval && refreshInterval > 0) {
+      const interval = setInterval(()=>getGraphData(false,true), refreshInterval);
+      return () => clearInterval(interval);
+    }
+  }, [refreshInterval]);
+  
   return (
     <Modal
       useNativeDriver={true}
@@ -174,6 +195,7 @@ function Filter({show, setShow,graphData,setGraphData}: propsType) {
               />
               <Text style={styles.lable}>Sensor</Text>
               <CustomDropdown
+                disabled={sensorFieldDisabled}
                 placeholder="Select Sensor"
                 data={allSensors}
                 labelField="sensor_name"

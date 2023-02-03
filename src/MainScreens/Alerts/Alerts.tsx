@@ -1,9 +1,10 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React, {Dispatch, useContext, useEffect, useState} from 'react';
 import {
   Image,
   LayoutAnimation,
   Platform,
   Pressable,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
@@ -17,7 +18,7 @@ import {shade} from '../../utils/shadow';
 import AddAlertModal from './AddAlertModal';
 import GlobalContext from '../../Context';
 import axios from 'axios';
-import {getAllParameters, get_alerts} from '../../Endpoints';
+import {delete_alerts, getAllParameters, get_alerts} from '../../Endpoints';
 if (
   Platform.OS === 'android' &&
   UIManager.setLayoutAnimationEnabledExperimental
@@ -30,6 +31,9 @@ function Alerts() {
   const [alerts, setAlerts] = useState([]);
   const {setIsLoading} = useContext(GlobalContext);
 
+  const [refresh, triggerRefresh] = useState(0);
+  const [refresh1, triggerRefresh1] = useState(0);
+
   const getData = async () => {
     setIsLoading(true);
     await axios
@@ -40,13 +44,28 @@ function Alerts() {
       })
       .catch(err => console.log(err))
       .finally(() => setIsLoading(false));
-    // triggerRefresh1(Math.random());
+    triggerRefresh1(Math.random());
   };
+  // useEffect(() => {
+  //   getData();
+  // }, []);
   useEffect(() => {
     getData();
+  }, [refresh]);
+
+  const [refreshing, setRefreshing] = React.useState(false);
+
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(false);
+    getData();
   }, []);
+
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView
+      style={styles.container}
+      refreshControl={
+        <RefreshControl  refreshing={refreshing} onRefresh={onRefresh} />
+      }>
       <View
         style={{
           marginBottom: 10,
@@ -63,9 +82,17 @@ function Alerts() {
         </TouchableOpacity>
       </View>
       {alerts.map((data, index) => (
-        <AlertListCard data={data} key={index} />
+        <AlertListCard
+          data={data}
+          key={index + refresh1}
+          updateParent={triggerRefresh}
+        />
       ))}
-      <AddAlertModal show={visible} setShow={setVisible} />
+      <AddAlertModal
+        show={visible}
+        setShow={setVisible}
+        updateParent={triggerRefresh}
+      />
       <View style={{height: 50}}></View>
     </ScrollView>
   );
@@ -118,10 +145,25 @@ interface AlertData {
     created_at: string;
     updated_at: string;
   };
+  updateParent: Dispatch<number>;
 }
 
-function AlertListCard({data}: AlertData) {
+function AlertListCard({data, updateParent}: AlertData) {
   const [full, showFull] = useState(false);
+  const {setIsLoading} = useContext(GlobalContext);
+
+  const handleDelete = async () => {
+    setIsLoading(true);
+    await axios
+      .post(delete_alerts + `?alert_id=${data?.id}`)
+      .then(async res => {
+        if (res.data.success) {
+          updateParent(Math.random());
+        } else setIsLoading(false);
+      })
+      .catch(err => console.log(err));
+    // .finally(() => setIsLoading(false));
+  };
   return (
     <View
       style={{
@@ -160,7 +202,9 @@ function AlertListCard({data}: AlertData) {
           <Text style={styles.listText}>
             Event Condition : {data?.event_condition}
           </Text>
-          <Text style={styles.listText}>Day : {data?.days.toString()}</Text>
+          <Text style={styles.listText}>
+            Day : {JSON.parse(data?.days).join(', ')}
+          </Text>
           <Text style={styles.listText}>Duration : {data?.duration} Mins</Text>
           <Text style={styles.listText}>
             Timing : {data?.time_from}-{data?.time_to}
@@ -172,6 +216,19 @@ function AlertListCard({data}: AlertData) {
             Mobile Numbers : {data?.mobile_numbers}
           </Text>
           <Text style={styles.listText}>Email IDs : {data?.email_ids}</Text>
+          <TouchableOpacity
+            onPress={handleDelete}
+            style={{alignSelf: 'flex-end', marginRight: 10, marginBottom: 10}}>
+            <Text
+              style={{
+                ...styles.listText,
+                color: 'red',
+                fontSize: 17,
+                fontWeight: '400',
+              }}>
+              Delete
+            </Text>
+          </TouchableOpacity>
         </View>
       )}
     </View>

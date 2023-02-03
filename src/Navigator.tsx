@@ -14,6 +14,8 @@ import colors from './utils/colors';
 import {SafeAreaView, useSafeArea} from 'react-native-safe-area-context';
 import LoadingScreen from './Components/LoadingScreen';
 import CustomDrawer from './Components/CustomDrawer';
+import Settings from './MainScreens/Settings/Settings';
+import Reports from './MainScreens/Reports/Reports';
 
 const Tab = createBottomTabNavigator();
 
@@ -43,12 +45,17 @@ function CustomHeader(props: any) {
         style={{height: 32, width: 150, resizeMode: 'contain'}}
         source={require('./assets/images/energy_box_logo.png')}
       />
-      <Ionicons
+      {/* <Ionicons
         style={styles.shadow}
         name={'search-outline'}
         size={30}
         color={'#0B6BB3'}
-      />
+      /> */}
+      <Image
+                style={{height: 30,width:30,borderRadius:15,borderWidth:2,borderColor:colors.font_primary}}
+                source={{
+                  uri: 'https://static.vecteezy.com/system/resources/previews/002/275/847/original/male-avatar-profile-icon-of-smiling-caucasian-man-vector.jpg',
+                }}></Image>
       <CustomDrawer show={showDrawer} setShow={setShowDrawer}/>
     </View>
   );
@@ -63,6 +70,7 @@ function HomeTab() {
         initialRouteName="Dashboard"
         backBehavior="initialRoute"
         screenOptions={{
+          tabBarHideOnKeyboard:true,
           headerShown: false,
           headerStyle: {
             backgroundColor: colors.bg_primary,
@@ -79,13 +87,13 @@ function HomeTab() {
             borderTopColor: 'rgba(255,255,255,0.5)',
           },
         }}>
-        <Tab.Screen
-          name="Home"
-          component={HomeScreen}
+          <Tab.Screen
+          name="Controllers"
+          component={Controllers}
           options={({route}: any) => ({
             tabBarIcon: ({focused}) => (
               <Image
-                source={require('./assets/images/bottomTab/cloud-upload.png')}
+                source={require('./assets/images/bottomTab/controller.png')}
                 style={{
                   tintColor: focused
                     ? colors.accent_primary
@@ -96,17 +104,17 @@ function HomeTab() {
           })}
         />
         <Tab.Screen
-          name="Settings"
-          component={SettingsScreen}
+          name="Alerts"
+          component={Alerts}
           options={({route}: any) => ({
             tabBarIcon: ({focused}) => (
               <Image
-                source={require('./assets/images/bottomTab/pie-chart.png')}
+                source={require('./assets/images/bottomTab/alert.png')}
                 style={{
                   tintColor: focused
                     ? colors.accent_primary
                     : colors.accent_secondary,
-                  marginRight: 20,
+                    marginRight: 20,
                 }}
               />
             ),
@@ -138,32 +146,33 @@ function HomeTab() {
                 />
               </View>
             ),
+            tabBarHideOnKeyboard:true
           })}
         />
         <Tab.Screen
-          name="Controllers"
-          component={Controllers}
+          name="Reports"
+          component={Reports}
           options={({route}: any) => ({
             tabBarIcon: ({focused}) => (
               <Image
-                source={require('./assets/images/bottomTab/controller.png')}
+                source={require('./assets/images/bottomTab/cloud-upload.png')}
                 style={{
                   tintColor: focused
                     ? colors.accent_primary
                     : colors.accent_secondary,
-                  marginLeft: 20,
+                    marginLeft: 20,
                 }}
               />
             ),
           })}
         />
         <Tab.Screen
-          name="Alerts"
-          component={Alerts}
+          name="Settings"
+          component={Settings}
           options={({route}: any) => ({
             tabBarIcon: ({focused}) => (
               <Image
-                source={require('./assets/images/bottomTab/alert.png')}
+                source={require('./assets/images/bottomTab/pie-chart.png')}
                 style={{
                   tintColor: focused
                     ? colors.accent_primary
@@ -196,24 +205,6 @@ export default function Navigator() {
         />
       </Stack.Navigator>
     </NavigationContainer>
-  );
-}
-
-//mock
-function HomeScreen() {
-  return (
-    <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-      <Text>Home!</Text>
-      <MaterialCommunityIcons name={'view-dashboard-outline'} />
-    </View>
-  );
-}
-
-function SettingsScreen() {
-  return (
-    <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-      <Text>Settings!</Text>
-    </View>
   );
 }
 

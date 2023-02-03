@@ -23,6 +23,7 @@
     "react-native": "0.70.6",
     "react-native-charts-wrapper": "^0.5.11",
     "react-native-element-dropdown": "^2.5.1",
+    "react-native-fs": "^2.20.0",
     "react-native-linear-gradient": "^2.6.2",
     "react-native-modal": "^13.0.1",
     "react-native-modal-datetime-picker": "^14.0.1",
@@ -31,7 +32,8 @@
     "react-native-screens": "^3.18.2",
     "react-native-svg": "^13.7.0",
     "react-native-svg-charts": "^5.4.0",
-    "react-native-vector-icons": "^9.2.0"
+    "react-native-vector-icons": "^9.2.0",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",

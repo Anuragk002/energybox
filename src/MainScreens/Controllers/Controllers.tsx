@@ -4,6 +4,7 @@ import {
   LayoutAnimation,
   Platform,
   Pressable,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
@@ -51,8 +52,29 @@ function Controllers() {
     console.log(userData);
     getData();
   }, [refresh]);
+
+  const [refreshInterval, setRefreshInterval] = useState(120000);
+  useEffect(() => {
+    if (refreshInterval && refreshInterval > 0) {
+      const interval = setInterval(getData, refreshInterval);
+      return () => clearInterval(interval);
+    }
+  }, [refreshInterval]);
+
+  //refresh control
+  const [refreshing, setRefreshing] = React.useState(false);
+
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(false);
+    getData();
+  }, []);
+
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView
+      style={styles.container}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+      }>
       <View
         style={{
           marginBottom: 10,
@@ -126,14 +148,13 @@ const ControllerListCard = ({data, updateParent}) => {
   const handleAutomate = async () => {
     if (!automate) {
       showAutomateModal(true);
-      setAutomate(true);
+      // setAutomate(true);
     } else {
       setIsLoading(true);
       await axios
-        .post(automate_on_off, {id: data.id,automate_status:'0'}) 
+        .post(automate_on_off, {id: data.id, automate_status: '0'})
         .then(async res => {
-          if(res?.data?.status==true)
-          setAutomate(false);
+          if (res?.data?.status == true) setAutomate(false);
           console.log('automateoffon', res?.data);
           // setConData(res?.data?.controllers);
         })
@@ -204,39 +225,39 @@ const ControllerListCard = ({data, updateParent}) => {
         </View>
       </View>
       <View>
-        {openBottom && (
-          <View>
-            <Text
-              style={{
-                fontSize: 14,
-                fontWeight: 'bold',
-                color: colors.font_primary,
-              }}>
-              Automate{'\n'}
-            </Text>
-            <Text
-              style={{
-                fontSize: 14,
-                fontWeight: '500',
-                color: colors.font_grey,
-              }}>
-              {data.automate_time.days.join(',')}
-              {'\n'}
-              {data.automate_time.start_time} - {data.automate_time.end_time}
-            </Text>
-            <TouchableOpacity onPress={handleAutomate}>
-              <Image
-                style={{}}
-                source={
-                  automate
-                    ? require('../../assets/images/ontoggle.png')
-                    : require('../../assets/images/offtoggle.png')
-                }
-              />
-            </TouchableOpacity>
-          </View>
-        )}
-        <Button
+        {/* {openBottom && ( */}
+        <View>
+          <Text
+            style={{
+              fontSize: 14,
+              fontWeight: 'bold',
+              color: colors.font_primary,
+            }}>
+            Automate{'\n'}
+          </Text>
+          <Text
+            style={{
+              fontSize: 14,
+              fontWeight: '500',
+              color: colors.font_grey,
+            }}>
+            {data.automate_time.days.join(',')}
+            {'\n'}
+            {data.automate_time.start_time} - {data.automate_time.end_time}
+          </Text>
+          <TouchableOpacity onPress={handleAutomate}>
+            <Image
+              style={{}}
+              source={
+                automate
+                  ? require('../../assets/images/ontoggle.png')
+                  : require('../../assets/images/offtoggle.png')
+              }
+            />
+          </TouchableOpacity>
+        </View>
+        {/* )} */}
+        {/* <Button
           style={{
             borderBottomLeftRadius: 10,
             borderBottomRightRadius: 10,
@@ -254,7 +275,7 @@ const ControllerListCard = ({data, updateParent}) => {
             });
           }}>
           <View></View>
-        </Button>
+        </Button> */}
         <AddAutomate
           show={automateModal}
           setShow={showAutomateModal}

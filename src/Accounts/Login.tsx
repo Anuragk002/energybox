@@ -2,6 +2,7 @@ import {useNavigation} from '@react-navigation/native';
 import axios from 'axios';
 import React, {useContext, useState} from 'react';
 import {
+  Alert,
   Image,
   SafeAreaView,
   StyleSheet,
@@ -16,33 +17,57 @@ import colors from '../utils/colors';
 import {LocalStorage} from '../utils/helpers';
 
 interface NavProps {
-  navigate: any;
+  replace: any;
 }
 
 function Login() {
   const navigation = useNavigation<NavProps>();
-  const [email, setEmail] = useState('manishbatra494@gmail.com');
-  const [password, setPassword] = useState('Demo@123');
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState('');
 
   const {setUserData, setIsLoading} = useContext(GlobalContext);
 
   const handleLogin = async () => {
+    if(email.trim()===''||password.trim()===''){
+      Alert.alert('','Enter valid email and password');
+      return;
+    }
     setIsLoading(true);
     await axios
-      .post(login, {email, password})
+      .post(login, {email:email.trim().toLowerCase(), password})
       .then(async res => {
-        await LocalStorage.write(
-          LocalStorage.Key.UserData,
-          JSON.stringify(res?.data?.user),
-        );
-        setUserData(res?.data?.user);
-        navigation.navigate('HomeTab');
+        if ((res.data.success)) {
+          await LocalStorage.write(
+            LocalStorage.Key.UserData,
+            JSON.stringify(res?.data?.user),
+          );
+          setUserData(res?.data?.user);
+          navigation.replace('HomeTab');
+        } else {
+          Alert.alert(
+            'Login Failed',
+            res?.data?.message,
+          );
+          setIsLoading(false)
+        }
         // console.log(res.data);
       })
       .catch(err => console.log(err.message))
-      .finally(()=>setIsLoading(false));
+      // .finally(() => setIsLoading(false));
   };
 
+  async function checkAuth(){
+    const res=await LocalStorage.read(
+      LocalStorage.Key.UserData,
+      );
+      if(res){
+        setUserData(JSON.parse(res));
+        navigation.replace('HomeTab')
+      }
+  }
+  React.useEffect(() => {
+    checkAuth()
+  }, []);
   return (
     <SafeAreaView style={{flex: 1}}>
       <View style={styles.container}>

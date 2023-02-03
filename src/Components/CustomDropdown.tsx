@@ -10,9 +10,10 @@ interface CustomDropdownType{
   valueField:string,
   value:any,
   setValue:any
+  disabled?:boolean,
 }
 
-function CustomDropdown({placeholder='Select item',data:location_data,labelField,valueField, value,setValue}:CustomDropdownType) {
+function CustomDropdown({placeholder='Select item',disabled=false,data:location_data,labelField,valueField, value,setValue}:CustomDropdownType) {
   const [isFocus, setIsFocus] = useState(false);
   // const location_data = [
   //   {label: 'Item 1', value: '1'},
@@ -26,6 +27,7 @@ function CustomDropdown({placeholder='Select item',data:location_data,labelField
   // ];
     return (
         <Dropdown
+                disable={disabled}
                 style={[styles.dropdown, isFocus && {borderColor: 'blue'}]}
                 placeholderStyle={styles.placeholderStyle}
                 selectedTextStyle={styles.selectedTextStyle}

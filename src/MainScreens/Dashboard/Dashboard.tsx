@@ -16,7 +16,6 @@ import colors from '../../utils/colors';
 import {shade} from '../../utils/shadow';
 import Filter from './Filter';
 
-import {LineChart} from 'react-native-charts-wrapper';
 import Chart from './Chart';
 import {LocalStorage} from '../../utils/helpers';
 import {Button, DataTable, SegmentedButtons} from 'react-native-paper';
@@ -54,7 +53,7 @@ function Dashboard() {
   const [inactiveSensors, setInactiveSensors] = useState([]);
 
   const getTableData = async () => {
-    setIsLoading(true);
+    // setIsLoading(true);
 
     await axios
       .get(get_active_inactive_sensor_count + '?user_id=' + userData.id)
@@ -86,11 +85,21 @@ function Dashboard() {
         setInactiveSensors(res?.data?.sensors);
       })
       .catch(err => console.log(err));
-    setIsLoading(false);
+      setIsLoading(false)
+    // setIsLoading(false);
   };
   React.useEffect(() => {
+    setIsLoading(true)
     getTableData();
   }, []);
+
+  const [refreshInterval, setRefreshInterval] = useState(120000);
+  useEffect(() => {
+    if (refreshInterval && refreshInterval > 0) {
+      const interval = setInterval(getTableData, refreshInterval);
+      return () => clearInterval(interval);
+    }
+  }, [refreshInterval]);
 
   return (
     <ScrollView style={styles.container}>
